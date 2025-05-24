@@ -53,7 +53,7 @@
                                                 <h4><a href="#">{{ $place->name }}</a></h4>
                                                 <p class="mt-16">
                                                     {{ \Illuminate\Support\Str::limit($place->description, 150) }}</p>
-                                                <a href="{{ $place->google_maps_url }}" target="_blank" class="learn">
+                                                <a href="{{ route('home.directories.show', $place->slug) }}" target="_blank" class="learn">
                                                     Lihat Tempat Nongkrong <span><i
                                                             class="fa-regular fa-arrow-right"></i></span>
                                                 </a>
@@ -74,7 +74,7 @@
                                                 <h4><a href="#">{{ $place->name }}</a></h4>
                                                 <p class="mt-16">
                                                     {{ \Illuminate\Support\Str::limit($place->description, 150) }}</p>
-                                                <a href="{{ $place->google_maps_url }}" target="_blank" class="learn">
+                                                <a href="{{ route('home.directories.show', $place->slug) }}" target="_blank" class="learn">
                                                     Lihat Tempat Nongkrong <span><i
                                                             class="fa-regular fa-arrow-right"></i></span>
                                                 </a>
@@ -135,7 +135,7 @@
                                                     </h4>
                                                      <p style="font-size: 16px; font-weight: normal;">
                                                     {{ \Illuminate\Support\Str::limit($place->description, 150) }}</p>
-                                                    <a href="{{ $place->google_maps_url }}" class="learn" target="_blank">
+                                                    <a href="{{ route('home.directories.show', $place->slug) }}" class="learn" target="_blank">
                                                         Lihat Tempat Nongkrong
                                                         <span><i class="fa-regular fa-arrow-right"></i></span>
                                                     </a>
@@ -153,9 +153,9 @@
                     <div class="row">
                         <div class="col-12 text-center aos-init" data-aos="fade-up" data-aos-delay="100"
                             data-aos-duration="400">
-                            <button class="btn btn-primary px-4 py-2" id="loadMore">
+                            <a href="{{ route('home.directories') }}" class="btn btn-primary px-4 py-2" id="loadMore">
                                 Lihat Lebih Banyak
-                            </button>
+                            </a>
                         </div>
                     </div>
 

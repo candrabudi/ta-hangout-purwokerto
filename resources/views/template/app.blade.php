@@ -38,7 +38,7 @@
                                 <ul>
                                     <li><a href="{{ url('/') }}">Beranda</a></li>
                                     <li><a href="{{ url('/directories') }}">Direktori</a></li>
-                                    <li><a href="{{ url('/about') }}">Tentang</a></li>
+                                    <li><a href="#">Tentang</a></li>
                                 </ul>
                             </div>
                             <div class="header1-buttons">
@@ -78,53 +78,9 @@
         <div class="mobile-nav">
             <ul>
                 <li><a href="{{ url('/') }}">Beranda</a></li>
-                <li><a href="{{ url('/direktori') }}">Direktori</a></li>
-                <li><a href="{{ url('/tentang') }}">Tentang</a></li>
+                <li><a href="{{ url('/directories') }}">Direktori</a></li>
+                <li><a href="#">Tentang</a></li>
             </ul>
-
-            <div class="mobile-button">
-                <a class="theme-btn1" href="{{ url('/kontak') }}">Get A Quote <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-
-            <div class="footer-contact-area1 md:pl-0 pl-20 sm:pl-0 mt-30">
-                <h3 class="text-24 leading-26 font-semibold title1 pb-10">Get in touch</h3>
-                <div class="contact-box d-flex">
-                    <div class="icon">
-                        <img src="{{ asset('template/frontend/img/icons/footer1-icon1.svg') }}" alt="vexon" />
-                    </div>
-                    <div class="text">
-                        <a href="mailto:contact@vexon.com">contact@vexon.com</a>
-                    </div>
-                </div>
-
-                <div class="contact-box d-flex">
-                    <div class="icon">
-                        <img src="{{ asset('template/frontend/img/icons/footer1-icon2.svg') }}" alt="vexon" />
-                    </div>
-                    <div class="text">
-                        <a href="#">123 Innovation Drive,<br />Tech City, ST 12345, USA</a>
-                    </div>
-                </div>
-
-                <div class="contact-box d-flex">
-                    <div class="icon">
-                        <img src="{{ asset('template/frontend/img/icons/footer1-icon3.svg') }}" alt="vexon" />
-                    </div>
-                    <div class="text">
-                        <a href="tel:123-456-7890">123-456-7890</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="contact-infos">
-                <h3>Our Social Network</h3>
-                <ul class="social-icon">
-                    <li><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></li>
-                    <li><a href="#"><i class="fa-brands fa-x-twitter"></i></a></li>
-                    <li><a href="#"><i class="fa-brands fa-youtube"></i></a></li>
-                    <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
-                </ul>
-            </div>
         </div>
     </div>
 
