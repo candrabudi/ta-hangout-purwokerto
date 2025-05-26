@@ -166,7 +166,7 @@
                                                 <div class="card p-1">
                                                     <img src="{{ asset('storage/' . $csi->image_path) }}"
                                                         alt="Current Thumbnail" class="img-thumbnail fixed-size-thumbnail">
-                                                    <form action="{{ route('admin.coffee_shops.deleteImage', $csi->id) }}"
+                                                    <form action="{{ route('hangout.delete.image', $csi->id) }}"
                                                         method="POST" class="delete-form">
                                                         @csrf
                                                         @method('DELETE')
