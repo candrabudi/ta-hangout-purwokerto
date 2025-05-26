@@ -50,7 +50,7 @@
                                         </div>
                                     @endif
 
-                                    <form action="{{ route('admin.coffee_shops.update', $coffeeShop->id) }}" method="POST"
+                                    <form action="{{ route('hangout.update', $coffeeShop->id) }}" method="POST"
                                         enctype="multipart/form-data" id="main-form">
                                         @csrf
                                         @method('PUT')
