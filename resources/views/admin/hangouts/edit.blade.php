@@ -155,7 +155,7 @@
                                     <h5>Upload Gambar Tambahan</h5>
                                 </div>
                                 <div class="card-body">
-                                    <form action="{{ route('hangout.upload') }}" method="POST" class="dropzone"
+                                    <form action="{{ route('hangout.upload.image') }}" method="POST" class="dropzone"
                                         id="dropzone">
                                         @csrf
                                     </form>
