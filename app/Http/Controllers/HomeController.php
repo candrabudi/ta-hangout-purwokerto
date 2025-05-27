@@ -114,27 +114,45 @@ class HomeController extends Controller
         $hangout = Hangout::where('slug', $slug)->firstOrFail();
         $visitorId = $request->cookie('visitor_id');
 
-        $data = [
+        $existingInteraction = VisitorInteraction::where([
             'visitor_id' => $visitorId,
             'hangout_id' => $hangout->id,
             'interaction_type' => $request->interaction_type,
-        ];
+        ])->first();
 
-        if ($request->interaction_type === 'rating') {
-            $data['rating_value'] = $request->rating_value;
+        if ($existingInteraction) {
+            if ($request->interaction_type === 'rating') {
+                $existingInteraction->rating_value = $request->rating_value;
+                $existingInteraction->save();
+                $message = 'Rating Anda berhasil diperbarui.';
+            } else {
+                $message = 'Interaksi Anda sudah tercatat sebelumnya.';
+            }
+        } else {
+            $interaction = new VisitorInteraction();
+            $interaction->visitor_id = $visitorId;
+            $interaction->hangout_id = $hangout->id;
+            $interaction->interaction_type = $request->interaction_type;
+
+            if ($request->interaction_type === 'rating') {
+                $interaction->rating_value = $request->rating_value;
+                $message = 'Terima kasih, rating Anda telah dikirim.';
+            } else {
+                $message = match ($request->interaction_type) {
+                    'like' => 'Anda menyukai tempat ini.',
+                    'bookmark' => 'Tempat ini telah disimpan.',
+                    'share' => 'Terima kasih telah membagikan tempat ini.',
+                    'view' => 'Kunjungan tercatat.',
+                    default => 'Interaksi berhasil dicatat.',
+                };
+            }
+
+            $interaction->save();
         }
 
-        VisitorInteraction::updateOrCreate(
-            [
-                'visitor_id' => $visitorId,
-                'hangout_id' => $hangout->id,
-                'interaction_type' => $request->interaction_type,
-            ],
-            $data
-        );
-
-        return response()->json(['message' => 'Interaction recorded']);
+        return response()->json(['message' => $message]);
     }
+
 
 
 }
