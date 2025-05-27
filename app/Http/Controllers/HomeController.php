@@ -52,16 +52,16 @@ class HomeController extends Controller
 
         $visitorId = $request->cookie('visitor_id');
 
-        if (!$visitorId || !\App\Models\Visitor::where('id', $visitorId)->exists()) {
-            $visitor = \App\Models\Visitor::create([
-                'id' => (string) Str::uuid(),
-                'device_info' => $request->userAgent(),
-            ]);
+        // if (!$visitorId || !\App\Models\Visitor::where('id', $visitorId)->exists()) {
+        //     $visitor = \App\Models\Visitor::create([
+        //         'id' => (string) Str::uuid(),
+        //         'device_info' => $request->userAgent(),
+        //     ]);
 
-            $visitorId = $visitor->id;
+        //     $visitorId = $visitor->id;
 
-            Cookie::queue('visitor_id', $visitorId, 60 * 24 * 30);
-        }
+        //     Cookie::queue('visitor_id', $visitorId, 60 * 24 * 30);
+        // }
 
         $alreadyViewed = VisitorInteraction::where('visitor_id', $visitorId)
             ->where('hangout_id', $hangout->id)
