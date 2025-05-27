@@ -53,7 +53,11 @@ class HomeController extends Controller
 
         $visitorId = $request->cookie('visitor_id');
 
-        if (!$visitorId || Visitor::where('id', $visitorId)->exists()) {
+        $checkVisitor = Visitor::where('id', $visitorId)
+            ->where('device_info', $request->userAgent())
+            ->exists();
+
+        if (!$checkVisitor) {
             $visitor = Visitor::create([
                 'id' => (string) Str::uuid(),
                 'device_info' => $request->userAgent(),
@@ -69,6 +73,7 @@ class HomeController extends Controller
             ->where('interaction_type', 'view')
             ->whereDate('created_at', now()->toDateString())
             ->exists();
+
 
         if (!$alreadyViewed) {
             VisitorInteraction::create([
