@@ -234,11 +234,9 @@
             </div>
         </div>
     </div>
-    <!-- Swiper JS -->
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-
-    <!-- Lightbox2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         new Swiper(".hangoutSwiper", {
@@ -286,58 +284,67 @@
                 starRatingDiv.classList.add('hover-active');
                 stars.forEach(st => {
                     const val = parseInt(st.getAttribute('data-value'));
-                    if (val <= hoverValue) {
-                        st.classList.add('hovered');
-                    } else {
-                        st.classList.remove('hovered');
-                    }
+                    st.classList.toggle('hovered', val <= hoverValue);
                 });
             });
 
             star.addEventListener('mouseout', () => {
                 starRatingDiv.classList.remove('hover-active');
                 stars.forEach(st => st.classList.remove('hovered'));
-                setStars(currentRating); // restore rating setelah hover
+                setStars(currentRating);
             });
         });
 
         setStars(currentRating);
-    </script>
-    <script>
+
         async function sendInteraction(type, ratingValue = null) {
             const slug = "{{ $hangout->slug }}";
-
             const data = {
                 interaction_type: type
             };
+
             if (type === 'rating' && ratingValue !== null) {
                 data.rating_value = ratingValue;
             }
 
-            const response = await fetch(`/directories/${slug}/interact`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                },
-                body: JSON.stringify(data),
-            });
+            try {
+                const response = await fetch(`/directories/${slug}/interact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify(data),
+                });
 
-            if (response.ok) {
-                const resJson = await response.json();
-                alert(resJson.message);
-            } else {
-                alert('Failed to send interaction');
+                if (response.ok) {
+                    const resJson = await response.json();
+                    Swal.fire({
+                        icon: 'success',
+                        title: type === 'rating' ? 'Terima kasih atas rating Anda!' : 'Berhasil!',
+                        text: resJson.message || 'Interaksi berhasil dikirim.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw new Error('Gagal melakukan interaksi. Silakan coba lagi.');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: error.message || 'Gagal mengirim interaksi.',
+                });
             }
         }
 
-        document.getElementById('like-btn').addEventListener('click', () => sendInteraction('like'));
-
-        document.getElementById('rating-select').addEventListener('change', (e) => {
+        document.getElementById('like-btn')?.addEventListener('click', () => sendInteraction('like'));
+        document.getElementById('rating-select')?.addEventListener('change', (e) => {
             const value = e.target.value;
             if (value) {
                 sendInteraction('rating', parseInt(value));
             }
         });
     </script>
+
 @endsection
