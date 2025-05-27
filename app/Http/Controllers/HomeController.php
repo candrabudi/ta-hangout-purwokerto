@@ -7,8 +7,9 @@ use App\Models\Hangout;
 use App\Models\Location;
 use App\Models\VisitorInteraction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Str;
 class HomeController extends Controller
 {
     public function index()
@@ -31,6 +32,7 @@ class HomeController extends Controller
 
     public function directories(Request $request)
     {
+        $visitorId = $request->cookie('visitor_id');
         $query = Hangout::with('location')->where('status', 1);
 
         if ($request->filled('location_id')) {
@@ -47,7 +49,19 @@ class HomeController extends Controller
     public function show($slug, Request $request)
     {
         $hangout = Hangout::where('slug', $slug)->firstOrFail();
+
         $visitorId = $request->cookie('visitor_id');
+
+        if (!$visitorId || !\App\Models\Visitor::where('id', $visitorId)->exists()) {
+            $visitor = \App\Models\Visitor::create([
+                'id' => (string) Str::uuid(),
+                'device_info' => $request->userAgent(),
+            ]);
+
+            $visitorId = $visitor->id;
+
+            Cookie::queue('visitor_id', $visitorId, 60 * 24 * 30);
+        }
 
         $alreadyViewed = VisitorInteraction::where('visitor_id', $visitorId)
             ->where('hangout_id', $hangout->id)
@@ -55,7 +69,7 @@ class HomeController extends Controller
             ->whereDate('created_at', now()->toDateString())
             ->exists();
 
-        if (!$alreadyViewed && $visitorId) {
+        if (!$alreadyViewed) {
             VisitorInteraction::create([
                 'visitor_id' => $visitorId,
                 'hangout_id' => $hangout->id,
@@ -63,32 +77,17 @@ class HomeController extends Controller
             ]);
         }
 
-        $lastLike = null;
-        $lastRating = null;
-
-        if ($visitorId) {
-            $lastLike = VisitorInteraction::where('visitor_id', $visitorId)
-                ->where('hangout_id', $hangout->id)
-                ->where('interaction_type', 'like')
-                ->latest()
-                ->first();
-
-            $lastRating = VisitorInteraction::where('visitor_id', $visitorId)
-                ->where('hangout_id', $hangout->id)
-                ->where('interaction_type', 'rating')
-                ->latest()
-                ->first();
-        }
-
         $lastLike = VisitorInteraction::where('visitor_id', $visitorId)
             ->where('hangout_id', $hangout->id)
             ->where('interaction_type', 'like')
-            ->latest()->first();
+            ->latest()
+            ->first();
 
         $lastRating = VisitorInteraction::where('visitor_id', $visitorId)
             ->where('hangout_id', $hangout->id)
             ->where('interaction_type', 'rating')
-            ->latest()->first();
+            ->latest()
+            ->first();
 
         $mostLiked = Hangout::selectRaw('hangouts.id, hangouts.name, hangouts.thumbnail, hangouts.slug, COUNT(visitor_interactions.id) as like_count')
             ->where('hangouts.slug', '!=', $slug)
@@ -98,7 +97,6 @@ class HomeController extends Controller
             ->orderByDesc('like_count')
             ->take(5)
             ->get();
-
 
         return view('home.read', compact('hangout', 'lastLike', 'lastRating', 'mostLiked'));
     }
@@ -152,7 +150,4 @@ class HomeController extends Controller
 
         return response()->json(['message' => $message]);
     }
-
-
-
 }
