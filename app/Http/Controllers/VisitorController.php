@@ -16,6 +16,7 @@ class VisitorController extends Controller
             'interactions as shares_count' => fn($q) => $q->where('interaction_type', 'share'),
             'interactions as ratings_count' => fn($q) => $q->where('interaction_type', 'rating'),
         ])
+            ->join('visitor_interactions', 'visitors.id', '=', 'visitor_interactions.visitor_id')
             ->with(['interactions.hangout'])
             ->latest()
             ->get();
