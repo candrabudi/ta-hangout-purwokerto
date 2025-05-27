@@ -170,7 +170,7 @@
                                     <div class="col-12 mt-3">
                                         <div class="card">
                                             <div class="card-body">
-                                                <p>{{ $location->name }}</p>
+                                                <a href="{{ route('home.directories', ['location_id' => $location->id]) }}">{{ $location->name }}</p>
                                             </div>
                                         </div>
                                     </div>

@@ -31,17 +31,16 @@ class HomeController extends Controller
 
     public function directories(Request $request)
     {
-        $query = Hangout::query();
+        $query = Hangout::with('location')->where('status', 1);
 
-        if ($request->has('q') && $request->q != '') {
-            $query->where('name', 'like', '%' . $request->q . '%')
-                ->orWhere('address', 'like', '%' . $request->q . '%')
-                ->orWhere('description', 'like', '%' . $request->q . '%');
+        if ($request->filled('location_id')) {
+            $query->where('location_id', $request->location_id);
         }
 
         $hangouts = $query->paginate(6)->withQueryString();
+        $locations = Location::all();
 
-        return view('home.directories', compact('hangouts'));
+        return view('home.directories', compact('hangouts', 'locations'));
     }
 
 
@@ -49,7 +48,7 @@ class HomeController extends Controller
     {
         $hangout = Hangout::where('slug', $slug)->firstOrFail();
         $visitorId = $request->cookie('visitor_id');
-        // return $visitorId;
+
         $alreadyViewed = VisitorInteraction::where('visitor_id', $visitorId)
             ->where('hangout_id', $hangout->id)
             ->where('interaction_type', 'view')

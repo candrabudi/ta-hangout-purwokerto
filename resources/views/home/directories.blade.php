@@ -102,6 +102,33 @@
     @include('home.partials.hero')
     <div class="blog-page-sec sp">
         <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">Cari Tempat Hangout</h4>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button"
+                        id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-filter me-2"></i> Lokasi
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
+                        <li>
+                            <a class="dropdown-item {{ request('location_id') == '' ? 'active' : '' }}"
+                                href="{{ route('home.directories', ['location_id' => '']) }}">
+                                Semua Lokasi
+                            </a>
+                        </li>
+                        @foreach ($locations as $location)
+                            <li>
+                                <a class="dropdown-item {{ request('location_id') == $location->id ? 'active' : '' }}"
+                                    href="{{ route('home.directories', ['location_id' => $location->id]) }}">
+                                    {{ $location->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+
+
             <div class="row">
                 @foreach ($hangouts as $hangout)
                     <div class="col-md-6 col-lg-4 mt-3" data-aos="fade-up" data-aos-offset="50" data-aos-duration="400"
@@ -118,7 +145,8 @@
                                             src="{{ asset('template/frontend/img/icons/time1.svg') }}" alt="time" />
                                         {{ \Carbon\Carbon::parse($hangout->created_at)->translatedFormat('d F Y') }}</a>
                                 </div>
-                                <h4><a href="{{ route('home.directories.show', $hangout->slug) }}">{{ $hangout->name }}</a>
+                                <h4><a
+                                        href="{{ route('home.directories.show', $hangout->slug) }}">{{ $hangout->name }}</a>
                                 </h4>
                                 <p class="mt-16">{{ Str::limit($hangout->description, 100) }}</p>
                                 <div class="author-area">
