@@ -29,6 +29,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/directories', [HomeController::class, 'directories'])->name('home.directories');
 Route::get('/directories/{slug}', [HomeController::class, 'show'])->name('home.directories.show');
 Route::post('/directories/{slug}/interact', [HomeController::class, 'interact'])->name('hangout.interact');
+Route::post('/store-location', [\App\Http\Controllers\HomeController::class, 'storeLocation'])->name('home.store_location');
 
 Route::middleware('auth')->group(function () {
 

@@ -64,7 +64,6 @@ class HomeController extends Controller
             ]);
 
             $visitorId = $visitor->id;
-
             Cookie::queue('visitor_id', $visitorId, 60 * 24 * 30);
         }
 
@@ -73,7 +72,6 @@ class HomeController extends Controller
             ->where('interaction_type', 'view')
             ->whereDate('created_at', now()->toDateString())
             ->exists();
-
 
         if (!$alreadyViewed) {
             VisitorInteraction::create([
@@ -95,17 +93,58 @@ class HomeController extends Controller
             ->latest()
             ->first();
 
-        $mostLiked = Hangout::selectRaw('hangouts.id, hangouts.name, hangouts.thumbnail, hangouts.slug, COUNT(visitor_interactions.id) as like_count')
+        $mostLiked = Hangout::selectRaw('hangouts.*, COUNT(visitor_interactions.id) as like_count')
             ->where('hangouts.slug', '!=', $slug)
             ->join('visitor_interactions', 'hangouts.id', '=', 'visitor_interactions.hangout_id')
             ->where('interaction_type', 'like')
-            ->groupBy('hangouts.id', 'hangouts.name', 'hangouts.slug', 'hangouts.thumbnail')
+            ->groupBy('hangouts.id')
             ->orderByDesc('like_count')
             ->take(5)
             ->get();
 
-        return view('home.read', compact('hangout', 'lastLike', 'lastRating', 'mostLiked'));
+        $nearestHangouts = collect();
+        $visitorLat = session('visitor_latitude');
+        $visitorLng = session('visitor_longitude');
+
+        if ($visitorLat && $visitorLng) {
+            $nearestHangouts = Hangout::with('location')
+                ->whereHas('location', function ($q) {
+                    $q->whereNotNull('latitude')->whereNotNull('longitude');
+                })
+                ->get()
+                ->map(function ($item) use ($visitorLat, $visitorLng) {
+                    $lat = $item->location->latitude;
+                    $lng = $item->location->longitude;
+
+                    $theta = $visitorLng - $lng;
+                    $dist = sin(deg2rad($visitorLat)) * sin(deg2rad($lat)) +
+                        cos(deg2rad($visitorLat)) * cos(deg2rad($lat)) * cos(deg2rad($theta));
+                    $dist = acos($dist);
+                    $dist = rad2deg($dist);
+                    $miles = $dist * 60 * 1.1515;
+                    $item->distance_km = round($miles * 1.609344, 2);
+                    return $item;
+                })
+                ->sortBy('distance_km')
+                ->take(5);
+        }
+
+
+        return view('home.read', compact('hangout', 'lastLike', 'lastRating', 'mostLiked', 'nearestHangouts'));
     }
+
+
+
+    public function storeLocation(Request $request)
+    {
+        session([
+            'visitor_latitude' => $request->latitude,
+            'visitor_longitude' => $request->longitude,
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
 
 
     public function interact(Request $request, $slug)
@@ -123,6 +162,7 @@ class HomeController extends Controller
             'hangout_id' => $hangout->id,
             'interaction_type' => $request->interaction_type,
         ])->first();
+
 
         if ($existingInteraction) {
             if ($request->interaction_type === 'rating') {

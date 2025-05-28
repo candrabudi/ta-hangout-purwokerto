@@ -187,56 +187,47 @@
 
     <div class="blog-details1-all">
         <div class="container">
-            <h4 class="mb-3">🔥 Popular This Week</h4>
+            <h4 class="mb-3">🔥 Populer Minggu Ini</h4>
             <div class="row">
-                @foreach ($mostLiked as $hangout)
-                    <div class="col-md-6 col-lg-4 mt-3" data-aos="fade-up" data-aos-offset="50" data-aos-duration="400"
-                        data-aos-delay="100">
-                        <div class="blog1-single-box">
-                            <div class="thumbnail image-anime">
-                                <img src="{{ asset('storage/' . $hangout->thumbnail) }}" alt="{{ $hangout->name }}" />
-                            </div>
-                            <div class="heading1">
-                                <div class="social-area">
-                                    <a href="{{ route('home.directories.show', $hangout->slug) }}" class="social">Hangout
-                                        Spot</a>
-                                    <a href="#" class="time">
-                                        <img src="{{ asset('template/frontend/img/icons/time1.svg') }}" alt="time" />
-                                        {{ \Carbon\Carbon::parse($hangout->created_at)->translatedFormat('d F Y') }}
-                                    </a>
-                                </div>
-                                <h4>
-                                    <a
-                                        href="{{ route('home.directories.show', $hangout->slug) }}">{{ $hangout->name }}</a>
-                                </h4>
-                                <p class="mt-16">{{ Str::limit($hangout->description, 100) }}</p>
-
-                                <div class="author-area">
-                                    <div class="author">
-                                        <div class="author-tumb">
-                                            <img src="https://cdn-icons-png.flaticon.com/128/18390/18390769.png"
-                                                alt="author" width="16" />
-                                        </div>
-                                        <a href="#" class="author-text">{{ $hangout->address }}</a>
-                                    </div>
-                                    <div class="date">
-                                        <a href="{{ $hangout->google_maps_url }}" target="_blank">
-                                            <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" width="16"
-                                                alt="map" /> Map
-                                        </a>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
+                @foreach ($mostLiked as $popularHangout)
+                    @include('home.partials.hangout_card', ['hangout' => $popularHangout])
                 @endforeach
             </div>
         </div>
     </div>
+
+    @if ($nearestHangouts->count())
+        <div class="blog-details1-all mt-5">
+            <div class="container">
+                <h4 class="mb-3">📍 Terdekat Dari Lokasi Anda</h4>
+                <div class="row">
+                    @foreach ($nearestHangouts as $nearbyHangout)
+                        @include('home.partials.hangout_card', ['hangout' => $nearbyHangout])
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
+
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        navigator.geolocation.getCurrentPosition(function(position) {
+            fetch('{{ route('home.store_location') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                })
+            });
+        });
+    </script>
 
     <script>
         new Swiper(".hangoutSwiper", {
