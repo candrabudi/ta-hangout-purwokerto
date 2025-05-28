@@ -93,14 +93,15 @@ class HomeController extends Controller
             ->latest()
             ->first();
 
-        $mostLiked = Hangout::selectRaw('hangouts.*, COUNT(visitor_interactions.id) as like_count')
-            ->where('hangouts.slug', '!=', $slug)
+        $recommendedBasedOnRating = Hangout::selectRaw('hangouts.*, AVG(visitor_interactions.rating_value) as avg_rating')
             ->join('visitor_interactions', 'hangouts.id', '=', 'visitor_interactions.hangout_id')
-            ->where('interaction_type', 'like')
+            ->where('interaction_type', 'rating')
             ->groupBy('hangouts.id')
-            ->orderByDesc('like_count')
+            ->having('avg_rating', '>=', 3)
+            ->inRandomOrder()
             ->take(5)
             ->get();
+
 
         $nearestHangouts = collect();
         $visitorLat = session('visitor_latitude');
@@ -130,7 +131,7 @@ class HomeController extends Controller
         }
 
 
-        return view('home.read', compact('hangout', 'lastLike', 'lastRating', 'mostLiked', 'nearestHangouts'));
+        return view('home.read', compact('hangout', 'lastLike', 'lastRating', 'recommendedBasedOnRating', 'nearestHangouts'));
     }
 
 

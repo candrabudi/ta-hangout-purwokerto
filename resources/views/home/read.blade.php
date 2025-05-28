@@ -187,9 +187,9 @@
 
     <div class="blog-details1-all">
         <div class="container">
-            <h4 class="mb-3">🔥 Populer Minggu Ini</h4>
+            <h4 class="mb-3">🌟 Rekomendasi Buat Kamu</h4>
             <div class="row">
-                @foreach ($mostLiked as $popularHangout)
+                @foreach ($recommendedBasedOnRating as $popularHangout)
                     @include('home.partials.hangout_card', ['hangout' => $popularHangout])
                 @endforeach
             </div>
