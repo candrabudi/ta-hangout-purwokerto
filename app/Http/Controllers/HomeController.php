@@ -96,7 +96,7 @@ class HomeController extends Controller
         $recommendedBasedOnRating = Hangout::selectRaw('hangouts.*, AVG(visitor_interactions.rating_value) as avg_rating')
             ->join('visitor_interactions', 'hangouts.id', '=', 'visitor_interactions.hangout_id')
             ->where('interaction_type', 'rating')
-            ->groupBy('hangouts.id', 'location_id', 'hangouts.name')
+            ->groupBy('hangouts.id', 'location_id', 'hangouts.name', 'hangouts.slug')
             ->having('avg_rating', '>=', 3)
             ->inRandomOrder()
             ->take(5)
