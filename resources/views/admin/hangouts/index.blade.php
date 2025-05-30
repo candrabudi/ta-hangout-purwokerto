@@ -26,7 +26,7 @@
                                 <th>Alamat</th>
                                 <th>Lokasi</th>
                                 <th>Status</th>
-                                <th>Jumlah Gambar</th>
+                                <th>Kategori</th>
                                 <th>Rata-rata Rating</th>
                                 <th>Aksi</th>
                             </tr>
