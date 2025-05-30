@@ -105,8 +105,10 @@ class HangoutController extends Controller
     {
         $coffeeShop = Hangout::with('images')->findOrFail($id);
         $locations = Location::all();
+        $categories = Category::all(); // <--- Tambahkan ini
         $coffeeShopImages = $coffeeShop->images;
-        return view('admin.hangouts.edit', compact('coffeeShop', 'locations', 'coffeeShopImages'));
+
+        return view('admin.hangouts.edit', compact('coffeeShop', 'locations', 'categories', 'coffeeShopImages'));
     }
 
     public function update(Request $request, $id)
