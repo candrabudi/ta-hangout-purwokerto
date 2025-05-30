@@ -45,4 +45,14 @@ class Hangout extends Model
             ->whereNotNull('rating_value');
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_hangout');
+    }
+
+    public function visitorInteractions()
+    {
+        return $this->hasMany(VisitorInteraction::class);
+    }
+
 }

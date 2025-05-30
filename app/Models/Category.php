@@ -5,19 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Location extends Model
+class Category extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'latitude',
-        'longitude',
+        'slug',
     ];
+
 
     public function hangouts()
     {
-        return $this->hasMany(Hangout::class);
+        return $this->belongsToMany(Hangout::class, 'category_hangout');
     }
-
 }

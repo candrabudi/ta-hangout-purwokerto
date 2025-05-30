@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Hangout;
+use App\Models\Location;
 use Illuminate\Http\Request;
+
+use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {

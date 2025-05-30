@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\HangoutImage;
 use App\Models\Hangout;
 use App\Models\Location;

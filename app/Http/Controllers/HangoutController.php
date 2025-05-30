@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Hangout;
 use App\Models\HangoutImage;
 use App\Models\Location;
@@ -14,7 +15,7 @@ class HangoutController extends Controller
 {
     public function index()
     {
-        $hangouts = Hangout::with('location')
+        $hangouts = Hangout::with('location', 'categories')
             ->withCount('images')
             ->withAvg(['visitorRatings as average_rating'], 'rating_value')
             ->get();
@@ -26,8 +27,9 @@ class HangoutController extends Controller
     public function create()
     {
         $locations = Location::all();
+        $categories = Category::all();
 
-        return view('admin.hangouts.create', compact('locations'));
+        return view('admin.hangouts.create', compact('locations', 'categories'));
     }
 
     public function store(Request $request)
@@ -40,6 +42,8 @@ class HangoutController extends Controller
             'google_maps_url' => 'nullable|url',
             'location_id' => 'required|exists:locations,id',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp,heic|max:2048',
+            'categories' => 'required|array', // ← Validasi kategori
+            'categories.*' => 'exists:categories,id',
         ]);
 
         try {
@@ -47,24 +51,27 @@ class HangoutController extends Controller
 
             $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
 
-            $coffeeShop = new Hangout();
-            $coffeeShop->name = $request->name;
-            $coffeeShop->slug = Str::slug($request->name);
-            $coffeeShop->address = $request->address;
-            $coffeeShop->description = $request->description;
-            $coffeeShop->status = $request->status;
-            $coffeeShop->google_maps_url = $request->google_maps_url;
-            $coffeeShop->location_id = $request->location_id;
-            $coffeeShop->thumbnail = $thumbnailPath;
-            $coffeeShop->save();
+            $hangout = new Hangout();
+            $hangout->name = $request->name;
+            $hangout->slug = Str::slug($request->name);
+            $hangout->address = $request->address;
+            $hangout->description = $request->description;
+            $hangout->status = $request->status;
+            $hangout->google_maps_url = $request->google_maps_url;
+            $hangout->location_id = $request->location_id;
+            $hangout->thumbnail = $thumbnailPath;
+            $hangout->save();
+
+            // Sync kategori
+            $hangout->categories()->sync($request->categories);
 
             // Simpan gambar tambahan jika ada
             if ($request->has('images')) {
                 foreach ($request->images as $image) {
-                    $hangoutImage = new HangoutImage();
-                    $hangoutImage->hangout_id = $coffeeShop->id;
-                    $hangoutImage->image_path = $image;
-                    $hangoutImage->save();
+                    HangoutImage::create([
+                        'hangout_id' => $hangout->id,
+                        'image_path' => $image,
+                    ]);
                 }
             }
 
@@ -77,9 +84,10 @@ class HangoutController extends Controller
                 Storage::disk('public')->delete($thumbnailPath);
             }
 
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data. ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
+
     public function upload(Request $request)
     {
         $request->validate([

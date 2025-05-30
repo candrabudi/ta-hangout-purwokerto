@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BackofficeCoffeeShopController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HangoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisitorController;
@@ -29,7 +31,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/directories', [HomeController::class, 'directories'])->name('home.directories');
 Route::get('/directories/{slug}', [HomeController::class, 'show'])->name('home.directories.show');
 Route::post('/directories/{slug}/interact', [HomeController::class, 'interact'])->name('hangout.interact');
-Route::post('/store-location', [\App\Http\Controllers\HomeController::class, 'storeLocation'])->name('home.store_location');
+Route::post('/store-location', [HomeController::class, 'storeLocation'])->name('home.store_location');
 
 Route::middleware('auth')->group(function () {
 
@@ -45,6 +47,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/images/{image}/destroy', [HangoutController::class, 'destroyImage'])->name('delete.image');
         Route::post('/upload/image', [HangoutController::class, 'upload'])->name('upload.image');
     });
+
+    Route::resource('location', LocationController::class)->except(['show']);
+    Route::resource('category', CategoryController::class)->except(['show']);
+
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/store', [UserController::class, 'store'])->name('users.store');

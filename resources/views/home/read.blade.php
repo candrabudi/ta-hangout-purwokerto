@@ -185,16 +185,33 @@
         </div>
     </div>
 
-    <div class="blog-details1-all">
+    <div class="blog-details1-all mt-5">
         <div class="container">
-            <h4 class="mb-3">🌟 Rekomendasi Buat Kamu</h4>
+            <h4 class="mb-3">🤝 Rekomendasi Berdasarkan Pengguna Lain yang Menyukai Kategori Sama</h4>
             <div class="row">
-                @foreach ($recommendedBasedOnRating as $popularHangout)
-                    @include('home.partials.hangout_card', ['hangout' => $popularHangout])
-                @endforeach
+                @forelse ($recommendedHangoutsCF as $recHangout)
+                    @include('home.partials.hangout_card', ['hangout' => $recHangout])
+                @empty
+                    <p class="text-muted">Belum ada rekomendasi berdasarkan kategori serupa.</p>
+                @endforelse
             </div>
         </div>
     </div>
+    
+    
+    <div class="blog-details1-all mt-5">
+        <div class="container">
+            <h4 class="mb-3">🤝 Rekomendasi Berdasarkan Rating</h4>
+            <div class="row">
+                @forelse ($recommendedBasedOnRating as $recRateHangout)
+                    @include('home.partials.hangout_card', ['hangout' => $recRateHangout])
+                @empty
+                    <p class="text-muted">Belum ada rekomendasi berdasarkan rating.</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
 
     @if ($nearestHangouts->count())
         <div class="blog-details1-all mt-5">

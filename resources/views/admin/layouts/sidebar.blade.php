@@ -57,6 +57,20 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('location.index') }}">
+                        <i data-feather="map-pin"></i>
+                        <span> Lokasi </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('category.index') }}">
+                        <i data-feather="tag"></i>
+                        <span> Kategori </span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('profile.edit') }}">
                         <i data-feather="settings"></i>
                         <span> Pengaturan Akun </span>

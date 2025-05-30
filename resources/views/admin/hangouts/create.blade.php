@@ -25,8 +25,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('hangout.store') }}" method="POST" enctype="multipart/form-data"
-                        id="main-form">
+                    <form action="{{ route('hangout.store') }}" method="POST" enctype="multipart/form-data" id="main-form">
                         @csrf
 
                         <div class="form-group mb-3">
@@ -39,8 +38,26 @@
                         </div>
 
                         <div class="form-group mb-3">
+                            <label for="categories">Kategori</label>
+                            <select name="categories[]" id="select-categories" multiple
+                                class="form-control select2 @error('categories') is-invalid @enderror">
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ collect(old('categories'))->contains($category->id) ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('categories')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+
+
+                        <div class="form-group mb-3">
                             <label for="address">Alamat</label>
-                           <textarea class="form-control @error('address') is-invalid @enderror" name="address" required>{{ old('address') }}</textarea>
+                            <textarea class="form-control @error('address') is-invalid @enderror" name="address" required>{{ old('address') }}</textarea>
 
                             @error('address')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -127,6 +144,7 @@
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+
     <script>
         Dropzone.options.dropzone = {
             paramName: "file",
@@ -141,3 +159,17 @@
     </script>
 
 @endsection
+@push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#select-categories').select2({
+                placeholder: 'Pilih kategori',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
+@endpush

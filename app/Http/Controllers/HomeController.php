@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\CoffeeShop;
 use App\Models\Hangout;
 use App\Models\Location;
@@ -39,6 +40,10 @@ class HomeController extends Controller
         if ($request->filled('location_id')) {
             $query->where('location_id', $request->location_id);
         }
+        if ($request->filled('q')) {
+            $query->where('name', 'LIKE', '%' . $request->q . '%');
+        }
+
 
         $hangouts = $query->paginate(6)->withQueryString();
         $locations = Location::all();
@@ -96,12 +101,38 @@ class HomeController extends Controller
         $recommendedBasedOnRating = Hangout::selectRaw('hangouts.*, AVG(visitor_interactions.rating_value) as avg_rating')
             ->join('visitor_interactions', 'hangouts.id', '=', 'visitor_interactions.hangout_id')
             ->where('interaction_type', 'rating')
+            ->where('hangouts.id', '!=', $hangout->id)
             ->groupBy('hangouts.id', 'location_id', 'hangouts.name', 'hangouts.slug', 'hangouts.address', 'hangouts.description', 'hangouts.thumbnail', 'hangouts.status', 'hangouts.google_maps_url', 'hangouts.longtitud', 'hangouts.latitud', 'hangouts.created_at', 'hangouts.updated_at')
             ->having('avg_rating', '>=', 3)
             ->inRandomOrder()
             ->take(5)
             ->get();
 
+        $likedHangoutIds = VisitorInteraction::where('visitor_id', $visitorId)
+            ->where('interaction_type', 'like')
+            ->pluck('hangout_id');
+
+        $likedCategories = DB::table('category_hangout')
+            ->whereIn('hangout_id', $likedHangoutIds)
+            ->pluck('category_id')
+            ->unique();
+
+        $otherVisitors = DB::table('visitor_interactions as vi')
+            ->join('category_hangout as ch', 'vi.hangout_id', '=', 'ch.hangout_id')
+            ->whereIn('ch.category_id', $likedCategories)
+            ->where('vi.interaction_type', 'like')
+            ->where('vi.visitor_id', '!=', $visitorId)
+            ->pluck('vi.visitor_id')
+            ->unique();
+
+        $recommendedHangoutsCF = Hangout::whereHas('visitorInteractions', function ($q) use ($otherVisitors) {
+            $q->whereIn('visitor_id', $otherVisitors)
+                ->where('interaction_type', 'like');
+        })
+            ->whereNotIn('id', $likedHangoutIds)
+            ->with('categories')
+            ->take(5)
+            ->get();
 
         $nearestHangouts = collect();
         $visitorLat = session('visitor_latitude');
@@ -130,11 +161,15 @@ class HomeController extends Controller
                 ->take(5);
         }
 
-
-        return view('home.read', compact('hangout', 'lastLike', 'lastRating', 'recommendedBasedOnRating', 'nearestHangouts'));
+        return view('home.read', compact(
+            'hangout',
+            'lastLike',
+            'lastRating',
+            'recommendedBasedOnRating',
+            'nearestHangouts',
+            'recommendedHangoutsCF'
+        ));
     }
-
-
 
     public function storeLocation(Request $request)
     {
